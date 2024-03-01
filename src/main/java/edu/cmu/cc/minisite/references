@@ -1,0 +1,36 @@
+{
+  "referenceGuide":"Cite all the reference sources in the required format. Proper citations will help you avoid unnecessary trouble but does not make it acceptable to copy code. Read the course and university policy statements in this regard. When working with others, limit the discussion to block diagrams and arrows. Do not look at another students' code. Read the JSON semantics and make use of JSON validator from the Internet if needed.",
+  "websites":[
+    {
+      "title":"<title of the page>",
+      "url":"<url>",
+      "code":"<explain in which part of your code did you use the snippet or idea>",
+      "description":"<additional information you may find necessary to provide>"
+    },
+    {
+      "title":"DBC - prepareStatement - How should I use it?",
+      "url":"https://stackoverflow.com/questions/1515043/jdbc-preparestatement-how-should-i-use-it",
+      "code":"PreparedStatement stmt = conn.prepareStatement(query);",
+      "description":"<additional information you may find necessary to provide>"
+    },
+    {
+      "title":"JDBC - Sample, Example Code",
+      "url":"https://www.tutorialspoint.com/jdbc/jdbc-sample-code.htm",
+      "code":"<explain in which part of your code did you use the snippet or idea>",
+      "description":"<additional information you may find necessary to provide>"
+    },
+    {
+      "title":"Using Neo4j from Java",
+      "url":"https://neo4j.com/developer/java/#_building_neo4j_applications_with_java",
+      "code":"session = driver.session()",
+      "description":"<additional information you may find necessary to provide>"
+    }
+  ],
+  "collaborators":[
+    {
+      "andrewId":"<collaborator andrewId>",
+      "collaborationType":"<I helped X, X helped me, or we helped each other>",
+      "description":"<describe the idea discussed or shared>"
+    }
+  ]
+}
