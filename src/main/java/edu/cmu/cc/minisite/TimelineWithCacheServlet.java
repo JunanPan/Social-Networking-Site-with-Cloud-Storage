@@ -223,7 +223,8 @@ public class TimelineWithCacheServlet extends HttpServlet {
                 JsonObject profile = getProfileFromServ(id);
                 result.add("name", profile.get("name"));
                 result.add("profile", profile.get("profile"));
-                cache.put(id + "profile", profile.toString());
+                cache.put(id + "name", profile.get("name").toString());
+                cache.put(id + "profile", profile.get("profile").toString());
             }
         }else{
             JsonObject profile = getProfileFromServ(id);
