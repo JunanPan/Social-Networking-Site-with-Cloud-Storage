@@ -196,7 +196,7 @@ public class TimelineWithCacheServlet extends HttpServlet {
         Boolean top = false;
         FollowerServlet followerServlet = new FollowerServlet();
         Integer followersNumber = followerServlet.getFollowersNumber(id);
-        System.out.println(" id: " + id, "followersNumber: " + followersNumber);
+        System.out.println(" id: " + id + "followersNumber: " + followersNumber);
         if (followersNumber > 300) {
             top = true;
         }
