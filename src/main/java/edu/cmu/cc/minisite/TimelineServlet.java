@@ -75,6 +75,7 @@ public class TimelineServlet extends HttpServlet {
         JsonObject result = new JsonObject();
         // TODO: implement this method
         // get profile
+        System.out.println("getting profile");
         try{
             ProfileServlet profileServlet = new ProfileServlet();
             JsonObject profile = profileServlet.getProfile(id);
@@ -85,14 +86,16 @@ public class TimelineServlet extends HttpServlet {
             e.printStackTrace();
         }
         
-        
+        System.out.println("getting followers");
         // get followers from FollowerServlet by http request
         FollowerServlet followerServlet = new FollowerServlet();
         JsonArray followers = followerServlet.getFollowers(id);
         result.add("followers", followers);
+
         // get posts
         // get 30 most popular comments
         // sort by ups and timestamp
+        System.out.println("getting comments");
         HomepageServlet homepageServlet = new HomepageServlet();
         JsonArray comments = homepageServlet.getComments(id);
 
@@ -116,7 +119,7 @@ public class TimelineServlet extends HttpServlet {
             }
         }
         result.add("comments", limitedComments);
-
+        System.out.println("returning result");
         return result.toString();
     }
 }
