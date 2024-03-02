@@ -119,6 +119,9 @@ public class HomepageServlet extends HttpServlet {
         JsonObject comment = new JsonObject();
         Document query = new Document("cid", c_id);
         Document doc = collection.find(query).first();
+        if (doc == null) {
+            return null;
+        }
         comment.addProperty("cid", doc.getString("cid"));
         comment.addProperty("parent_id", doc.getString("parent_id"));
         comment.addProperty("uid", doc.getString("uid"));
