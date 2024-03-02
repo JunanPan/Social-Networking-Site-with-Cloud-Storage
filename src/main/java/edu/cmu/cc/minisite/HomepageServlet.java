@@ -78,11 +78,26 @@ public class HomepageServlet extends HttpServlet {
     protected void doGet(final HttpServletRequest request,
                          final HttpServletResponse response) throws ServletException, IOException {
         JsonObject result = new JsonObject();
-        JsonArray commentsArray = new JsonArray();
-
         String id = request.getParameter("id");
-        // TODO: To be implemented
+        JsonArray commentsArray = getComments(id);
+        result.add("comments", commentsArray);
+        response.setContentType("text/html; charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter writer = response.getWriter();
+        writer.write(result.toString());
+        writer.close();
+    }
+
+    /**
+     * Method to get the comments authored by the user.
+     *
+     * @param id user id
+     * @return comments authored by the user
+     */
+    public JsonArray getComments(String id) {
+        JsonArray commentsArray = new JsonArray();
         Document query = new Document("uid", id);
+        // Sort by ups in descending order, and then by timestamp in descending order
         Document sort = new Document("ups", -1).append("timestamp", -1);
         for (Document doc : collection.find(query).sort(sort)) {
             JsonObject comment = new JsonObject();
@@ -92,16 +107,12 @@ public class HomepageServlet extends HttpServlet {
             comment.addProperty("timestamp", doc.getString("timestamp"));
             comment.addProperty("content", doc.getString("content"));
             comment.addProperty("subreddit", doc.getString("subreddit"));
+            // ups and downs are integers
             comment.addProperty("ups", doc.getInteger("ups"));
             comment.addProperty("downs", doc.getInteger("downs"));
             commentsArray.add(comment);
         }
-        result.add("comments", commentsArray);
-        response.setContentType("text/html; charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        PrintWriter writer = response.getWriter();
-        writer.write(result.toString());
-        writer.close();
-    }
+        return commentsArray;
+}
 }
 

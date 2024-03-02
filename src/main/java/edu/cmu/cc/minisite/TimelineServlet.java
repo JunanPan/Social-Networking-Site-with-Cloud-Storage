@@ -1,5 +1,6 @@
 package edu.cmu.cc.minisite;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
@@ -73,6 +74,27 @@ public class TimelineServlet extends HttpServlet {
     private String getTimeline(String id) {
         JsonObject result = new JsonObject();
         // TODO: implement this method
+        // get profile
+        ProfileServlet profileServlet = new ProfileServlet();
+        JsonObject profile = profileServlet.getProfile(id);
+        
+        // get followers from FollowerServlet by http request
+        FollowerServlet followerServlet = new FollowerServlet();
+        JsonArray followers = followerServlet.getFollowers(id);
+        result.add("followers", followers);
+        // get posts
+        // get 30 most popular comments
+        // sort by ups and timestamp
+        HomepageServlet homepageServlet = new HomepageServlet();
+        JsonArray comments = homepageServlet.getComments(id);
+        // upto 30 comments
+        JsonArray limitedComments = new JsonArray();
+        for (int i = 0; i < comments.size() && i < 30; i++) {
+            limitedComments.add(comments.get(i));
+        }
+        result.add("comments", limitedComments);
+
+
         return result.toString();
     }
 }
