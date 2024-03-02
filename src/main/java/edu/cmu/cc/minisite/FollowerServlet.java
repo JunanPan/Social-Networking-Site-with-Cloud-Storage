@@ -118,6 +118,24 @@ public class FollowerServlet extends HttpServlet {
         }
         return followers;
     }
+    // get followees by id
+    public JsonArray getFollowees(String id) {
+        JsonArray followees = new JsonArray();
+        try (org.neo4j.driver.v1.Session session = driver.session()) {
+            String query = "MATCH (user:User {username: $id})-[:FOLLOWS]->(followee:User) RETURN followee.username AS username, followee.url AS url ORDER BY followee.username";
+            org.neo4j.driver.v1.StatementResult result = session.run(query, org.neo4j.driver.v1.Values.parameters("id", id));
+            while (result.hasNext()) {
+                JsonObject followee = new JsonObject();
+                org.neo4j.driver.v1.Record record = result.next();
+                followee.addProperty("name", record.get("username").asString());
+                followee.addProperty("profile", record.get("url").asString());
+                followees.add(followee);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return followees;
+    }
 }
 
 
