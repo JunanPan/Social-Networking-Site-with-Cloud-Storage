@@ -192,8 +192,8 @@ public class TimelineWithCacheServlet extends HttpServlet {
 
         if (cache.get(id) != null) {
             JsonObject result = new JsonObject();
-            result.addProperty("name", cache.get(id + "name"));
-            result.addProperty("profile", cache.get(id + "profile"));
+            result.addProperty("name",  JsonParser.parseString(cache.get(id + "name")).getAsJsonObject().get("name").getAsString());
+            result.addProperty("profile", JsonParser.parseString(cache.get(id + "profile")).getAsJsonObject().get("profile").getAsString());
             result.add("followers", JsonParser.parseString(cache.get(id + "followers")).getAsJsonArray());
             result.add("comments", JsonParser.parseString(cache.get(id + "comments")).getAsJsonArray());
             return result.toString();
