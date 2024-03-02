@@ -104,6 +104,7 @@ public class FollowerServlet extends HttpServlet {
         JsonArray followers = new JsonArray();
         // TODO: To be implemented
         try (org.neo4j.driver.v1.Session session = driver.session()) {
+            // get followers of the user in neo4j
             String query = "MATCH (follower:User)-[:FOLLOWS]->(user:User {username: $id}) RETURN follower.username AS username, follower.url AS url ORDER BY follower.username";
             org.neo4j.driver.v1.StatementResult result = session.run(query, org.neo4j.driver.v1.Values.parameters("id", id));
             while (result.hasNext()) {
@@ -118,10 +119,36 @@ public class FollowerServlet extends HttpServlet {
         }
         return followers;
     }
-    // get followees by id
+
+    /**
+     * get followers number of a user
+     * @param id
+     * @return
+     */
+    public int getFollowersNumber(String id) {
+        int followersNumber = 0;
+        try (org.neo4j.driver.v1.Session session = driver.session()) {
+            // get followers number of the user in neo4j
+            String query = "MATCH (follower:User)-[:FOLLOWS]->(user:User {username: $id}) RETURN count(follower) AS followersNumber";
+            org.neo4j.driver.v1.StatementResult result = session.run(query, org.neo4j.driver.v1.Values.parameters("id", id));
+            if (result.hasNext()) {
+                followersNumber = result.next().get("followersNumber").asInt();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return followersNumber;
+    }
+
+    /**
+     * Return the name and profile image url of followees
+     * @param id
+     * @return
+     */
     public JsonArray getFollowees(String id) {
         JsonArray followees = new JsonArray();
         try (org.neo4j.driver.v1.Session session = driver.session()) {
+            // get followees of the user in neo4j
             String query = "MATCH (user:User {username: $id})-[:FOLLOWS]->(followee:User) RETURN followee.username AS username, followee.url AS url ORDER BY followee.username";
             org.neo4j.driver.v1.StatementResult result = session.run(query, org.neo4j.driver.v1.Values.parameters("id", id));
             while (result.hasNext()) {
