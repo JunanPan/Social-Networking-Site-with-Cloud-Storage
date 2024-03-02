@@ -190,17 +190,18 @@ public class TimelineWithCacheServlet extends HttpServlet {
     private String getTimeline(String id) throws IOException {
         // TODO: implement this method
 
-        JsonObject result = new JsonObject();
-
+    
         // if current user is top or not
         // A user is considered a "top user" if this user has more than 300 followers. 
         Boolean top = false;
         FollowerServlet followerServlet = new FollowerServlet();
         Integer followersNumber = followerServlet.getFollowersNumber(id);
+        System.out.println("followersNumber: " + followersNumber);
         if (followersNumber > 300) {
             top = true;
         }
 
+        JsonObject result = new JsonObject();
         System.out.println("getting profile");
         if (top) {
             // if user is top, cache his profile
