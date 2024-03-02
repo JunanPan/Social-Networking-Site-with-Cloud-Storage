@@ -125,8 +125,8 @@ public class FollowerServlet extends HttpServlet {
      * @param id
      * @return
      */
-    public int getFollowersNumber(String id) {
-        int followersNumber = 0;
+    public Integer getFollowersNumber(String id) {
+        Integer followersNumber = 0;
         try (org.neo4j.driver.v1.Session session = driver.session()) {
             // get followers number of the user in neo4j
             String query = "MATCH (follower:User)-[:FOLLOWS]->(user:User {username: $id}) RETURN count(follower) AS followersNumber";

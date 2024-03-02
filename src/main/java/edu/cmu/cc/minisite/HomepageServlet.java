@@ -114,12 +114,18 @@ public class HomepageServlet extends HttpServlet {
         }
         return commentsArray;
     }
-    // get comment by c_id
+    /**
+     * Method to get the comment by cid.
+     * @param c_id
+     * @return
+     */
     public JsonObject getCommentByCid(String c_id) {
         JsonObject comment = new JsonObject();
+        // Query the database to get the comment by cid
         Document query = new Document("cid", c_id);
         Document doc = collection.find(query).first();
-        if (doc == null) {
+        // If the comment is not found, return null
+        if (doc == null) { 
             return null;
         }
         comment.addProperty("cid", doc.getString("cid"));

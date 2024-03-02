@@ -156,9 +156,14 @@ public class ProfileServlet extends HttpServlet {
     
     }
 
-    // get profile by id
+    /**
+     * Method to get the profile of a user.
+     * @param id
+     * @return
+     */
     public JsonObject getProfile(String id) {
         JsonObject profile = new JsonObject();
+        // use username to get the profile photo url
         String query = "SELECT * FROM users WHERE username = ?";
         try {
             PreparedStatement stmt = conn.prepareStatement(query);
