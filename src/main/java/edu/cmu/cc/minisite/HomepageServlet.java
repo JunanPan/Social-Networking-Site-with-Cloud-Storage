@@ -1,11 +1,10 @@
 package edu.cmu.cc.minisite;
-
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Objects;
@@ -79,23 +78,25 @@ public class HomepageServlet extends HttpServlet {
     protected void doGet(final HttpServletRequest request,
                          final HttpServletResponse response) throws ServletException, IOException {
         JsonObject result = new JsonObject();
+        JsonArray commentsArray = new JsonArray();
+
         String id = request.getParameter("id");
         // TODO: To be implemented
-        Document query = new Document("author", id);
+        Document query = new Document("uid", id);
         Document sort = new Document("ups", -1).append("timestamp", -1);
         for (Document doc : collection.find(query).sort(sort)) {
             JsonObject comment = new JsonObject();
-            comment.addProperty("c_id", doc.getString("c_id"));
+            comment.addProperty("cid", doc.getString("cid"));
             comment.addProperty("parent_id", doc.getString("parent_id"));
             comment.addProperty("uid", doc.getString("uid"));
-            comment.addProperty("timestamp", doc.getLong("timestamp"));
-            comment.addProperty("content", doc.getLong("content"));
+            comment.addProperty("timestamp", doc.getString("timestamp"));
+            comment.addProperty("content", doc.getString("content"));
             comment.addProperty("subreddit", doc.getString("subreddit"));
             comment.addProperty("ups", doc.getInteger("ups"));
             comment.addProperty("downs", doc.getInteger("downs"));
-            
-            result.add(doc.getObjectId("_id").toHexString(), comment);
+            commentsArray.add(comment);
         }
+        result.add("comments", commentsArray);
         response.setContentType("text/html; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         PrintWriter writer = response.getWriter();
