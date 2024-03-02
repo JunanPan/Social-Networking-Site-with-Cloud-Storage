@@ -5,6 +5,10 @@ import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Comparator;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -97,29 +101,64 @@ public class TimelineServlet extends HttpServlet {
         // sort by ups and timestamp
         System.out.println("getting comments");
         HomepageServlet homepageServlet = new HomepageServlet();
-        JsonArray comments = homepageServlet.getComments(id);
-
-        // upto 30 comments
+        // Sort the most popular 30 comments from the user's followees
+        JsonArray followees = followerServlet.getFollowees(id);
         JsonArray limitedComments = new JsonArray();
-        for (int i = 0; i < comments.size() && i < 30; i++) {
-            limitedComments.add(comments.get(i));
+        for (int i = 0; i < followees.size(); i++) {
+            String followeeName = followees.get(i).getAsJsonObject().get("name").getAsString();
+            //followee is  {"name":"2cats1dog","profile":"https://farm4.staticflickr.com/3852/14766185303_4ba64d638d_m.jpg"}
+            JsonArray comments = homepageServlet.getComments(followeeName);
+            for (int j = 0; j < comments.size(); j++) {
+                limitedComments.add(comments.get(j));
+            }
         }
-        // if parent and grandparent are not null, add them to the result
+        // Sort the most popular 30 comments from the user's followees based on "ups" in descending order. In case of ties, use the comment's timestamp. Include all comments if there are fewer than 30.
+        List<JsonObject> commentList = new ArrayList<>();
+        for (int i = 0; i < limitedComments.size(); i++) {
+            commentList.add(limitedComments.get(i).getAsJsonObject());
+        }
+        Collections.sort(commentList, new Comparator<JsonObject>() {
+        @Override
+        public int compare(JsonObject o1, JsonObject o2) {
+            int ups1 = o1.get("ups").getAsInt();
+            int ups2 = o2.get("ups").getAsInt();
+            // First compare by "ups"
+            if (ups1 != ups2) {
+                return Integer.compare(ups2, ups1); // Note the order for descending
+            }
+            // If "ups" are equal, compare by "timestamp" (assuming timestamp is a String that can be compared directly; adjust as needed)
+            String timestamp1 = o1.get("timestamp").getAsString();
+            String timestamp2 = o2.get("timestamp").getAsString();
+            return timestamp2.compareTo(timestamp1); // For descending order
+        }
+    });
+        List<JsonObject> topComments = commentList.size() > 30 ? commentList.subList(0, 30) : commentList;
+        limitedComments = new JsonArray();
+        for (JsonObject comment : topComments) {
+            limitedComments.add(comment);
+        }
+        // get parent and grandparent
         for (int i = 0; i < limitedComments.size(); i++) {
             JsonObject comment = limitedComments.get(i).getAsJsonObject();
             String parent_id = comment.get("parent_id").getAsString();
-            JsonObject parent =  homepageServlet.getCommentByCid(parent_id);
+
+            JsonObject parent = homepageServlet.getCommentByCid(parent_id);
             if (parent != null) {
                 comment.add("parent", parent);
                 String grandparent_id = parent.get("parent_id").getAsString();
+
                 JsonObject grandparent = homepageServlet.getCommentByCid(grandparent_id);
-                if (grandparent != null) {
+                if (grandparent != null){
                     comment.add("grandparent", grandparent);
                 }
+            
             }
+          
+        
+            
         }
+
         result.add("comments", limitedComments);
-        System.out.println("returning result");
         return result.toString();
     }
 }
