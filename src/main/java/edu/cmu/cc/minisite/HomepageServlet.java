@@ -113,6 +113,22 @@ public class HomepageServlet extends HttpServlet {
             commentsArray.add(comment);
         }
         return commentsArray;
-}
+    }
+    // get comment by c_id
+    public JsonObject getCommentByCid(String c_id) {
+        JsonObject comment = new JsonObject();
+        Document query = new Document("cid", c_id);
+        Document doc = collection.find(query).first();
+        comment.addProperty("cid", doc.getString("cid"));
+        comment.addProperty("parent_id", doc.getString("parent_id"));
+        comment.addProperty("uid", doc.getString("uid"));
+        comment.addProperty("timestamp", doc.getString("timestamp"));
+        comment.addProperty("content", doc.getString("content"));
+        comment.addProperty("subreddit", doc.getString("subreddit"));
+        // ups and downs are integers
+        comment.addProperty("ups", doc.getInteger("ups"));
+        comment.addProperty("downs", doc.getInteger("downs"));
+        return comment;
+    }
 }
 

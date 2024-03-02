@@ -154,5 +154,26 @@ public class ProfileServlet extends HttpServlet {
         }
         return result;
     
-}
+    }
+
+    // get profile by id
+    public JsonObject getProfile(String id) {
+        JsonObject profile = new JsonObject();
+        String query = "SELECT * FROM users WHERE username = ?";
+        try {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                profile.addProperty("name", id);
+                profile.addProperty("profile", rs.getString("profile_photo_url"));
+            } else {
+                profile.addProperty("name", "Unauthorized");
+                profile.addProperty("profile", "#");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return profile;
+    }
 }

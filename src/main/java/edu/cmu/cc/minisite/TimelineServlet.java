@@ -75,8 +75,16 @@ public class TimelineServlet extends HttpServlet {
         JsonObject result = new JsonObject();
         // TODO: implement this method
         // get profile
-        ProfileServlet profileServlet = new ProfileServlet();
-        JsonObject profile = profileServlet.getProfile(id);
+        try{
+            ProfileServlet profileServlet = new ProfileServlet();
+            JsonObject profile = profileServlet.getProfile(id);
+            result.add("name", profile.get("name"));
+            result.add("profile", profile.get("profile"));
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        
         
         // get followers from FollowerServlet by http request
         FollowerServlet followerServlet = new FollowerServlet();
@@ -87,13 +95,27 @@ public class TimelineServlet extends HttpServlet {
         // sort by ups and timestamp
         HomepageServlet homepageServlet = new HomepageServlet();
         JsonArray comments = homepageServlet.getComments(id);
+
         // upto 30 comments
         JsonArray limitedComments = new JsonArray();
         for (int i = 0; i < comments.size() && i < 30; i++) {
             limitedComments.add(comments.get(i));
         }
+        // if parent and grandparent are not null, add them to the result
+        for (int i = 0; i < limitedComments.size(); i++) {
+            JsonObject comment = limitedComments.get(i).getAsJsonObject();
+            String parent_id = comment.get("parent_id").getAsString();
+            JsonObject parent =  homepageServlet.getCommentByCid(parent_id);
+            if (parent != null) {
+                comment.add("parent", parent);
+                String grandparent_id = parent.get("parent_id").getAsString();
+                JsonObject grandparent = homepageServlet.getCommentByCid(grandparent_id);
+                if (grandparent != null) {
+                    comment.add("grandparent", grandparent);
+                }
+            }
+        }
         result.add("comments", limitedComments);
-
 
         return result.toString();
     }
