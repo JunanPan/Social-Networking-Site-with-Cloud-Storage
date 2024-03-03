@@ -189,19 +189,15 @@ public class TimelineWithCacheServlet extends HttpServlet {
      */
     private String getTimeline(String id) throws IOException {
         // TODO: implement this method
-
         if (cache.get(id) != null) {
             JsonObject result = new JsonObject();
             result.addProperty("name",  cache.get(id + "name"));
             result.addProperty("profile", cache.get(id + "profile"));
-            // result.add("name", JsonParser.parseString(cache.get(id + "name")).getAsJsonObject().get("name"));
-            // result.add("profile", JsonParser.parseString(cache.get(id + "profile")).getAsJsonObject().get("profile"));
             result.add("followers", JsonParser.parseString(cache.get(id + "followers")).getAsJsonArray());
             result.add("comments", JsonParser.parseString(cache.get(id + "comments")).getAsJsonArray());
             return result.toString();
         }
 
-        
         // if current user is top or not
         // A user is considered a "top user" if this user has more than 300 followers. 
         Boolean top = false;
@@ -215,61 +211,30 @@ public class TimelineWithCacheServlet extends HttpServlet {
 
         JsonObject result = new JsonObject();
         System.out.println("getting profile");
+        JsonObject profile = getProfileFromServ(id);
+        result.add("name", profile.get("name"));
+        result.add("profile", profile.get("profile"));
+        // if user is top, cache his profile
         if (top) {
-            // if user is top, cache his profile
-            String profile_string = cache.get(id + "profile");
-            String name_string = cache.get(id + "name");
-            if (profile_string != null) {
-                result.add("name", JsonParser.parseString(name_string).getAsJsonObject().get("name"));
-                result.add("profile", JsonParser.parseString(profile_string).getAsJsonObject().get("profile"));
-            }else{
-                JsonObject profile = getProfileFromServ(id);
-                result.add("name", profile.get("name"));
-                result.add("profile", profile.get("profile"));
-                cache.put(id + "name", profile.get("name").getAsString());
-                cache.put(id + "profile", profile.get("profile").getAsString());
-            }
-        }else{
-            JsonObject profile = getProfileFromServ(id);
-            result.add("name", profile.get("name"));
-            result.add("profile", profile.get("profile"));
+            cache.put(id + "name", profile.get("name").getAsString());
+            cache.put(id + "profile", profile.get("profile").getAsString());
         }
 
         System.out.println("getting followers");
+        JsonArray followers = followerServlet.getFollowers(id);
+        result.add("followers", followers);
+        // if user is top, cache his followers
         if(top){
-            String followers_string = cache.get(id + "followers");
-            if (followers_string != null) {
-                // convert followers to JsonArray and add to result
-                JsonArray followersArray = JsonParser.parseString(followers_string).getAsJsonArray();
-                result.add("followers", followersArray);
-            }else{
-                JsonArray followers = followerServlet.getFollowers(id);
-                result.add("followers", followers);
-                // if user has more than 300 followers, cache his followers
-                cache.put(id + "followers", followers.toString());
-            }
-        }else{
-            JsonArray followers = followerServlet.getFollowers(id);
-            result.add("followers", followers);
+            cache.put(id + "followers", followers.toString());
         }
-
 
         // get posts
         System.out.println("getting comments");
+        JsonArray limitedComments = getCommentsFromServ(id);
+        result.add("comments", limitedComments);
+        // if user is top, cache his comments
         if (top) {
-            String comments_string = cache.get(id + "comments");
-            if (comments_string != null) {
-                JsonArray commentsArray = JsonParser.parseString(comments_string).getAsJsonArray();
-                result.add("comments", commentsArray);}
-            else{
-                JsonArray limitedComments = getCommentsFromServ(id);
-                result.add("comments", limitedComments);
-                cache.put(id + "comments", limitedComments.toString());
-            }
-        }
-        else{
-            JsonArray limitedComments = getCommentsFromServ(id);
-            result.add("comments", limitedComments);
+            cache.put(id + "comments", limitedComments.toString());
         }
         return result.toString();
     }
