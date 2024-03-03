@@ -192,8 +192,10 @@ public class TimelineWithCacheServlet extends HttpServlet {
 
         if (cache.get(id) != null) {
             JsonObject result = new JsonObject();
-            result.addProperty("name",  JsonParser.parseString(cache.get(id + "name")).getAsJsonObject().get("name").getAsString());
-            result.addProperty("profile", JsonParser.parseString(cache.get(id + "profile")).getAsJsonObject().get("profile").getAsString());
+            result.addProperty("name",  cache.get(id + "name"));
+            result.addProperty("profile", cache.get(id + "profile"));
+            // result.add("name", JsonParser.parseString(cache.get(id + "name")).getAsJsonObject().get("name"));
+            // result.add("profile", JsonParser.parseString(cache.get(id + "profile")).getAsJsonObject().get("profile"));
             result.add("followers", JsonParser.parseString(cache.get(id + "followers")).getAsJsonArray());
             result.add("comments", JsonParser.parseString(cache.get(id + "comments")).getAsJsonArray());
             return result.toString();
@@ -216,15 +218,16 @@ public class TimelineWithCacheServlet extends HttpServlet {
         if (top) {
             // if user is top, cache his profile
             String profile_string = cache.get(id + "profile");
+            String name_string = cache.get(id + "name");
             if (profile_string != null) {
-                result.add("name", JsonParser.parseString(profile_string).getAsJsonObject().get("name"));
+                result.add("name", JsonParser.parseString(name_string).getAsJsonObject().get("name"));
                 result.add("profile", JsonParser.parseString(profile_string).getAsJsonObject().get("profile"));
             }else{
                 JsonObject profile = getProfileFromServ(id);
                 result.add("name", profile.get("name"));
                 result.add("profile", profile.get("profile"));
-                cache.put(id + "name", profile.get("name").toString());
-                cache.put(id + "profile", profile.get("profile").toString());
+                cache.put(id + "name", profile.get("name").getAsString());
+                cache.put(id + "profile", profile.get("profile").getAsString());
             }
         }else{
             JsonObject profile = getProfileFromServ(id);
